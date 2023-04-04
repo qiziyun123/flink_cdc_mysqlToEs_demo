@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!--    <property name="log.path" value="/opt/log"/>-->
+
+    <!--    <springProperty scope="context" name="log.path" source="log.path" defaultValue="./logs"/> -->
+    <!--     <springProperty scope="context" name="logging.file.name" source="logging.file.name" defaultValue="name.log"/>  -->
+    <!--    <springProperty scope="context" name="log.max-history" source="logging.file.max-history" defaultValue="10"/>-->
+<!--    <conversionRule conversionWord="msg" converterClass="com.cmcc.zhwg.common.log.LogbackConverter" />-->
+    <!--控制台输出 -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <!--
+        日志输出格式：%d表示日期时间，%thread表示线程名，%-5level：级别从左显示5个字符宽度
+        %logger{50} 表示logger名字最长50个字符，否则按照句点分割。 %msg：日志消息，%n是换行符
+        -->
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>-->
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%logger:%line] [%X{X-B3-TraceId:-},%X{X-B3-SpanId:-},%X{X-B3-ParentSpanId:-}] -|-%msg%n</pattern>
+        </layout>
+    </appender>
+
+    <!-- 滚动记录文件，先将日志记录到指定文件，当符合某个条件时，将日志记录到其他文件 -->
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${logging.file.name}</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+            <FileNamePattern>${log.path}/logback-%d{yyyy-MM-dd}-%i.log</FileNamePattern><!---->
+
+            <!--日志文件最大的大小-->
+
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <!--日志文件保留天数-->
+            <MaxHistory>30</MaxHistory>
+        </rollingPolicy>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [ %thread ] - [ %-5level ] [ %logger{50} : %line ] - %msg%n</pattern>-->
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%logger:%line] [%X{X-B3-TraceId:-},%X{X-B3-SpanId:-},%X{X-B3-ParentSpanId:-}] -|-%msg%n</pattern>
+        </layout>
+    </appender>
+    <!--
+      logger主要用于存放日志对象，也可以定义日志类型、级别
+      name：表示匹配的logger类型前缀，也就是包的前半部分
+      level：要记录的日志级别，包括 TRACE < DEBUG < INFO < WARN < ERROR
+      additivity：作用在于children-logger是否使用 rootLogger配置的appender进行输出，
+            false：表示只用当前logger的appender-ref，
+            true：表示当前logger的appender-ref和rootLogger的appender-ref都有效
+    -->
+
+
+
+    <!-- 项目日志级别 -->
+    <!--     <logger name="com.cmcc" level="INFO" />-->
+        <!-- EUREKA 日志 -->
+    <!--    <logger name="com.netflix" level="INFO" />-->
+       <!-- http 日志 -->
+    <!--    <logger name="org.apache.http" level="INFO" />-->
+       <!-- apollo 日志 -->
+    <!--    <logger name="com.ctrip.framework.apollo" level="INFO" />-->
+
+       <!--
+         root与logger是父子关系，没有特别定义则默认为root，任何一个类只会和一个logger对应，
+         要么是定义的logger，要么是root，判断的关键在于找到这个logger，然后判断这个logger的appender和level。
+       -->
+    <root>
+        <level value="info"/>
+        <appender-ref ref="file" />
+        <appender-ref ref="console" />
+    </root>
+</configuration>

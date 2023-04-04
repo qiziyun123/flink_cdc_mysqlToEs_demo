@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.qizy.flinkcdc</groupId>
+    <artifactId>flinkcdc-mysqlToEs-demo</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <flink.version>1.14.0</flink.version>
+        <flinkcdc.version>2.2.0</flinkcdc.version>
+        <scala.binary.version>2.12</scala.binary.version>
+        <!-- 排除flink-cdc中的debezium依赖，从新引入对应版本依赖，目的解决数据库读取decimal类型数据问题 -->
+        <debezium.version>1.8.0.Final</debezium.version>
+    </properties>
+
+
+    <dependencies>
+        <!-- flink connector连接器基础包 -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-base</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+        <!-- flink java客户端 版本依赖关系 查看官网https://ververica.github.io/flink-cdc-connectors/master/content/about.html-->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-clients_${scala.binary.version}</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+        <!-- flink dataStream API -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-streaming-java_${scala.binary.version}</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-scala -->
+        <!-- 如果接入scala版本的话，添加下面依赖-->
+        <!-- <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-streaming-scala_${scala.binary.version}</artifactId>
+            <version>${flink.version}</version>
+        </dependency> -->
+
+        <!-- flink-connector-jdbc_2.11-1.14.0.jar：通过 JDBC 连接器来从 MySQL 里读取或写入数据；用于创建 sink 表，定义连接器为 jdbc -->
+        <!-- flink-sql-connector-mysql-cdc-2.0.2.jar：通过 MySQL-CDC 连接器从 MySQL 的 binlog 里提取更改；用于创建 source 表，定义连接器为 mysql-cdc -->
+        <!-- flink-cdc mysql数据源 -->
+        <dependency>
+            <groupId>com.ververica</groupId>
+            <artifactId>flink-sql-connector-mysql-cdc</artifactId>
+            <version>${flinkcdc.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>debezium-core</artifactId>
+                    <groupId>io.debezium</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>debezium-connector-mysql</artifactId>
+                    <groupId>io.debezium</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- 排除flink-cdc中的debezium依赖，从新引入对应版本依赖，目的解决数据库读取decimal类型数据问题 -->
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-core</artifactId>
+            <version>${debezium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-connector-mysql</artifactId>
+            <version>${debezium.version}</version>
+        </dependency>
+        <!-- webUI支持 -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-runtime-web_${scala.binary.version}</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+        <!-- flink的Table API&SQL程序可以连接到其他外部系统,用于读写批处理表和流式表 -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-runtime_${scala.binary.version}</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.36</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.11</version>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>jdk-1.8</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <jdk>1.8</jdk>
+            </activation>
+            <properties>
+                <maven.compiler.source>1.8</maven.compiler.source>
+                <maven.compiler.target>1.8</maven.compiler.target>
+                <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>
